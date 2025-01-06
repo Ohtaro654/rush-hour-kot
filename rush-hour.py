@@ -28,4 +28,10 @@ class auto():
                 raise ValueError("Ongeldige richting voor verticale auto!")
         # Update positie
         self.positie = (row, col)
+        
+class grid():
+    def __init__(self):
+        self.grid = [['_'] * 6 for _ in range(6)]
+
+    def toevoeg_auto(self, auto):
 
