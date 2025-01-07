@@ -7,32 +7,6 @@ class auto():
         # Horizontaal of verticaal
         self.ligging = ligging
 
-    def beweeg_auto(self, richting, grid):
-        row, col = self.positie
-        # Ligging horizontaal
-        if self.ligging == 'H':
-            if richting == 'Links':
-                if col - 1 >= 0 and grid[row][col - 1] == '_':
-                    col -= 1
-            elif richting == 'Rechts':
-                if col + 1 < 6 and grid[row][col + 1] == '_':
-                    col += 1
-            else:
-                raise ValueError("Ongeldige richting voor horizontale auto!")
-
-        # Ligging verticaal
-        elif self.ligging == 'V':
-            if richting == 'Boven':
-                if row - 1 >= 0 and grid[row - 1][col] == '_':
-                    row -= 1
-            elif richting == 'Onder':
-                if row + 1 < 6 and grid[row + 1][col] == '_':
-                    row += 1
-            else:
-                raise ValueError("Ongeldige richting voor verticale auto!")
-        # Update positie
-        self.positie = (row, col)
-        
 class grid():
     def __init__(self):
         # Maakt grid van 6x6 met _
@@ -63,3 +37,43 @@ class grid():
             # Voeg auto toe
             for j in range(row, row + auto.lengte):
                 self.grid[j][col] = auto.naam
+                
+                
+    def beweeg_auto(self, auto, richting):
+        row, col = auto.positie
+        # Ligging horizontaal
+        if auto.ligging == 'H':
+            if richting == 'Links':
+                # binnen grid en vakje links is _
+                if col - 1 >= 0 and self.grid[row][col - 1] == '_':
+                    # Eentje naar links
+                    for i in range(auto.lengte):
+                        self.grid[row][col - 1 + i] = auto.naam
+                    # Meest rechtse wordt leeg
+                    self.grid[row][col + auto.lengte - 1] = '_'
+                    # Positieverandering
+                    col -= 1
+                    
+            elif richting == 'Rechts':
+                if col + 1 < 6 and self.grid[row][col + 1] == '_':
+                    for i in range(auto.lengte):
+                        self.grid[row][col + 1 + i] = auto.naam
+                    # Meest linkse wordt leeg
+                    self.grid[row][col] = '_'
+                    # Positieverandering
+                    col += 1
+            else:
+                raise ValueError("Ongeldige richting voor horizontale auto!")
+
+        # Ligging verticaal
+        elif auto.ligging == 'V':
+            if richting == 'Boven':
+                if row - 1 >= 0 and self.grid[row - 1][col] == '_':
+                    row -= 1
+            elif richting == 'Onder':
+                if row + 1 < 6 and self.grid[row + 1][col] == '_':
+                    row += 1
+            else:
+                raise ValueError("Ongeldige richting voor verticale auto!")
+        # Update positie
+        auto.positie = (row, col)
