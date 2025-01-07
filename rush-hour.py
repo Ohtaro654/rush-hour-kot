@@ -7,23 +7,27 @@ class auto():
         # Horizontaal of verticaal
         self.ligging = ligging
 
-    def beweeg_auto(self, richting):
+    def beweeg_auto(self, richting, grid):
         row, col = self.positie
         # Ligging horizontaal
         if self.ligging == 'H':
             if richting == 'Links':
-                col += 1
+                if col - 1 >= 0 and grid[row][col - 1] == '_':
+                    col -= 1
             elif richting == 'Rechts':
-                col -= 1
+                if col + 1 < 6 and grid[row][col + 1] == '_':
+                    col += 1
             else:
                 raise ValueError("Ongeldige richting voor horizontale auto!")
 
         # Ligging verticaal
         elif self.ligging == 'V':
             if richting == 'Boven':
-                row += 1
+                if row - 1 >= 0 and grid[row - 1][col] == '_':
+                    row -= 1
             elif richting == 'Onder':
-                row -= 1
+                if row + 1 < 6 and grid[row + 1][col] == '_':
+                    row += 1
             else:
                 raise ValueError("Ongeldige richting voor verticale auto!")
         # Update positie
