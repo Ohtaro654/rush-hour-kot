@@ -1,7 +1,7 @@
 class auto():
-    def __init__(self, positie, lengte, naam, ligging):
+    def __init__(self, row, col, lengte, naam, ligging):
         # Coördinaat x en y tuple
-        self.positie = positie
+        self.positie = (row, col)
         self.lengte = lengte
         self.naam = naam
         # Horizontaal of verticaal
@@ -11,19 +11,21 @@ class grid():
     '''
     Variabele size (voor grid) toevoegen.
     '''
-    def __init__(self):
+    def __init__(self, size):
         # Maakt grid van 6x6 met _
-        self.grid = [['_'] * 6 for _ in range(6)]
-
-
+        self.size = size
+        self.grid = [['_'] * size for _ in range(size)]
+        
         '''
         Auto's toevoegen uit een csv file
         '''
     def toevoeg_auto(self, auto):
         row, col = auto.positie
+        row -= 1
+        col -= 1
         if auto.ligging == 'H':
             # Kijken of auto past op bord
-            if col + auto.lengte > 6:
+            if col + auto.lengte > self.size:
                 raise ValueError("Past niet op het bord!")
             # Kijken of niet overlapt
             for i in range(auto.lengte):
@@ -35,7 +37,7 @@ class grid():
 
         elif auto.ligging == 'V':
             # Kijken of auto past op bord
-            if row + auto.lengte > 6:
+            if row + auto.lengte > self.size:
                 raise ValueError("Past niet op het bord!")
             # Kijken of niet overlapt
             for j in range(auto.lengte):
@@ -52,47 +54,54 @@ class grid():
     '''
     Variabele 'stappen' toevoegen voor hoeveel stappen je wilt zetten met auto
     '''
-    def beweeg_auto(self, auto, richting):
+    def beweeg_auto(self, auto, richting, stapgrootte):
         row, col = auto.positie
+        row -= 1
+        col -= 1
+        
         # Ligging horizontaal
         if auto.ligging == 'H':
             if richting == 'Links':
                 # binnen grid en vakje links is _
-                if col - 1 >= 0 and self.grid[row][col - 1] == '_':
-                    # Eentje naar links
+                if col - stapgrootte >= 0 and all(self.grid[row][col - i] == '_' for i in range(1, stapgrootte + 1)):
+                    # Naar links
                     for i in range(auto.lengte):
-                        self.grid[row][col - 1 + i] = auto.naam
-                    # Meest rechtse wordt leeg
-                    self.grid[row][col + auto.lengte - 1] = '_'
+                        self.grid[row][col - stapgrootte + i] = auto.naam
+                    # rechtse worden leeg
+                    for i in range(stapgrootte):
+                        self.grid[row][col + auto.lengte - i - 1] = '_'
                     # Positieverandering
-                    col -= 1
+                    col -= stapgrootte
                     
             elif richting == 'Rechts':
-                if col + 1 < 6 and self.grid[row][col + 1] == '_':
+                if col + stappgrootte + auto.lengte - 1 < self.size and all(self.grid[row][col + auto.lengte + i] == '_' for i in range(stapgrootte)):
                     for i in range(auto.lengte):
-                        self.grid[row][col + 1 + i] = auto.naam
+                        self.grid[row][col + stapgrootte + i] = auto.naam
                     # Meest linkse wordt leeg
-                    self.grid[row][col] = '_'
+                    for i in range(stapgrootte):
+                        self.grid[row][col + i] = '_'
                     # Positieverandering
-                    col += 1
+                    col += stapgrootte
             else:
                 raise ValueError("Ongeldige richting voor horizontale auto!")
 
         # Ligging verticaal
         elif auto.ligging == 'V':
             if richting == 'Boven':
-                if row - 1 >= 0 and self.grid[row - 1][col] == '_':
+                if row - stapgrootte >= 0 and all(self.grid[row - i][col] == '_' for i in range(1, stapgrootte + 1)):
                     for i in range(auto.lengte):
-                        self.grid[row - 1 + i][col] = auto.naam
-                    self.grid[row + auto.lengte - 1][col] = '_'
-                    row -= 1
+                        self.grid[row - stapgrootte + i][col] = auto.naam
+                    for i in range(stapgrootte)
+                    self.grid[row + auto.lengte - i - 1][col] = '_'
+                    row -= stapgrootte
                     
             elif richting == 'Onder':
-                if row + 1 < 6 and self.grid[row + 1][col] == '_':
+                if row + stapgrootte + auto.lengte - 1 < self.size and all(self.grid[row + auto.lengte + i][col] == '_' for i in range(stapgrootte)):
                     for i in range(auto.lengte):
-                        self.grid[row + 1 + i][col] = auto.naam
-                    self.grid[row][col] = '_'
-                    row += 1
+                        self.grid[row + stapgrootte + i][col] = auto.naam
+                    for i in range(stapgrootte):
+                        self.grid[row + i][col] = '_'
+                    row += stapgrootte
             else:
                 raise ValueError("Ongeldige richting voor verticale auto!")
         # Update positie
