@@ -140,7 +140,11 @@ def kies_spelbord(mapnaam):
             try:
                 # Verkrijg de size en spelnummer
                 size_deel = naam_deel[0].replace('Rushhour', '')  # Haal "Rushhour" weg
-                size = int(size_deel[0])  # Het eerste cijfer van de size is de gridgrootte
+                if isdigit(size_deel[1]):
+                    size = int(size_deel[0])  # Het eerste cijfer van de size is de gridgrootte
+                else:
+                    size = size_deel[0]
+                    
                 spelnummer = int(naam_deel[1].replace('.csv', ''))  # Haal het spelnummer eruit
                 spellen.append((spelnummer, size, bestand))
             except ValueError:
