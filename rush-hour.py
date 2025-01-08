@@ -1,83 +1,117 @@
-import csv
 import os
+import csv
 
-class Auto:
+class Auto():
     def __init__(self, row, col, lengte, naam, ligging):
-        # Coördinaat x en y tuple, aangepast voor 1-gebaseerde indexering
-        self.positie = (row - 1, col - 1)  # Omzetten naar 0-gebaseerde index
+        # Coördinaat x en y tuple
+        self.positie = (row - 1, col - 1)
         self.lengte = lengte
         self.naam = naam
-        self.ligging = ligging  # Horizontaal (H) of verticaal (V)
+        # Horizontaal of verticaal
+        self.ligging = ligging
 
-class Grid:
-    def __init__(self):
-        # Maakt een grid van 6x6 met '_'
-        self.grid = [['_'] * 6 for _ in range(6)]
-
-    def voeg_auto_toe(self, auto):
+class Grid():
+    '''
+    Variabele size (voor grid) toevoegen.
+    '''
+    def __init__(self, size):
+        # Maakt grid van 6x6 met _
+        self.size = size
+        self.grid = [['_'] * size for _ in range(size)]
+        
+        '''
+        Auto's toevoegen uit een csv file
+        '''
+    def toevoeg_auto(self, auto):
         row, col = auto.positie
         if auto.ligging == 'H':
-            # Controleer of de auto past op het bord
-            if col + auto.lengte > 6:
-                raise ValueError("De auto past niet op het bord!")
-            # Controleer op overlap
-            for i in range(col, col + auto.lengte):
-                if self.grid[row][i] != '_':
-                    raise ValueError("De auto overlapt met een andere auto!")
-            # Voeg de auto toe aan het grid
-            for i in range(col, col + auto.lengte):
-                self.grid[row][i] = auto.naam
+            # Kijken of auto past op bord
+            if col + auto.lengte > self.size:
+                raise ValueError("Past niet op het bord!")
+            # Kijken of niet overlapt
+            for i in range(auto.lengte):
+                if self.grid[row][col + i] != '_':
+                    raise ValueError("Auto overlapt!")
+            # Voeg auto toe
+            for i in range(auto.lengte):
+                self.grid[row][col + i] = auto.naam
 
         elif auto.ligging == 'V':
-            # Controleer of de auto past op het bord
-            if row + auto.lengte > 6:
-                raise ValueError("De auto past niet op het bord!")
-            # Controleer op overlap
-            for j in range(row, row + auto.lengte):
-                if self.grid[j][col] != '_':
-                    raise ValueError("De auto overlapt met een andere auto!")
-            # Voeg de auto toe aan het grid
-            for j in range(row, row + auto.lengte):
-                self.grid[j][col] = auto.naam
-
+            # Kijken of auto past op bord
+            if row + auto.lengte > self.size:
+                raise ValueError("Past niet op het bord!")
+            # Kijken of niet overlapt
+            for j in range(auto.lengte):
+                if self.grid[row + j][col] != '_':
+                    raise ValueError("Auto overlapt!")
+            # Voeg auto toe
+            for j in range(auto.lengte):
+                self.grid[row + j][col] = auto.naam
+        
     def toon_bord(self):
         for row in self.grid:
             print(' '.join(row))
-
-    def beweeg_auto(self, auto, richting):
+    
+        '''
+        Finish maken
+        '''
+                
+    '''
+    Variabele 'stappen' toevoegen voor hoeveel stappen je wilt zetten met auto
+    '''
+    def beweeg_auto(self, auto, richting, stapgrootte):
         row, col = auto.positie
+        
+        # Ligging horizontaal
         if auto.ligging == 'H':
             if richting == 'Links':
-                if col > 0 and self.grid[row][col - 1] == '_':
-                    # Verplaats de auto naar links
-                    self.grid[row][col - 1] = auto.naam
-                    self.grid[row][col + auto.lengte - 1] = '_'
-                    auto.positie = (row, col - 1)
+                # binnen grid en vakje links is _
+                if col - stapgrootte >= 0 and all(self.grid[row][col - i] == '_' for i in range(1, stapgrootte + 1)):
+                    # Naar links
+                    for i in range(auto.lengte):
+                        self.grid[row][col - stapgrootte + i] = auto.naam
+                    # rechtse worden leeg
+                    for i in range(stapgrootte):
+                        self.grid[row][col + auto.lengte - i - 1] = '_'
+                    # Positieverandering
+                    col -= stapgrootte
+                    
             elif richting == 'Rechts':
-                if col + auto.lengte < 6 and self.grid[row][col + auto.lengte] == '_':
-                    # Verplaats de auto naar rechts
-                    self.grid[row][col + auto.lengte] = auto.naam
-                    self.grid[row][col] = '_'
-                    auto.positie = (row, col + 1)
+                if col + stappgrootte + auto.lengte - 1 < self.size and all(self.grid[row][col + auto.lengte + i] == '_' for i in range(stapgrootte)):
+                    for i in range(auto.lengte):
+                        self.grid[row][col + stapgrootte + i] = auto.naam
+                    # Meest linkse wordt leeg
+                    for i in range(stapgrootte):
+                        self.grid[row][col + i] = '_'
+                    # Positieverandering
+                    col += stapgrootte
             else:
-                raise ValueError("Ongeldige richting voor een horizontale auto!")
+                raise ValueError("Ongeldige richting voor horizontale auto!")
 
+        # Ligging verticaal
         elif auto.ligging == 'V':
             if richting == 'Boven':
-                if row > 0 and self.grid[row - 1][col] == '_':
-                    # Verplaats de auto naar boven
-                    self.grid[row - 1][col] = auto.naam
-                    self.grid[row + auto.lengte - 1][col] = '_'
-                    auto.positie = (row - 1, col)
+                if row - stapgrootte >= 0 and all(self.grid[row - i][col] == '_' for i in range(1, stapgrootte + 1)):
+                    for i in range(auto.lengte):
+                        self.grid[row - stapgrootte + i][col] = auto.naam
+                    for i in range(stapgrootte):
+                        self.grid[row + auto.lengte - i - 1][col] = '_'
+                        row -= stapgrootte
+    
             elif richting == 'Onder':
-                if row + auto.lengte < 6 and self.grid[row + auto.lengte][col] == '_':
-                    # Verplaats de auto naar onder
-                    self.grid[row + auto.lengte][col] = auto.naam
-                    self.grid[row][col] = '_'
-                    auto.positie = (row + 1, col)
+                if row + stapgrootte + auto.lengte - 1 < self.size and all(self.grid[row + auto.lengte + i][col] == '_' for i in range(stapgrootte)):
+                    for i in range(auto.lengte):
+                        self.grid[row + stapgrootte + i][col] = auto.naam
+                    for i in range(stapgrootte):
+                        self.grid[row + i][col] = '_'
+                    row += stapgrootte
             else:
-                raise ValueError("Ongeldige richting voor een verticale auto!")
-
+                raise ValueError("Ongeldige richting voor verticale auto!")
+        # Update positie
+        auto.positie = (row, col)
+        
+        
+        
 def lees_csv_bestand(pad):
     autos = []
     with open(pad, newline='') as csvfile:
@@ -98,15 +132,30 @@ def kies_spelbord(mapnaam):
         print("Geen spelborden gevonden in de map.")
         return None
 
-    print("Beschikbare spelborden:")
-    for i, bestand in enumerate(bestanden, start=1):
-        print(f"{i}: {bestand}")
+    spellen = []
+    for bestand in bestanden:
+        # Splits de bestandsnaam op de underscore en haal de size en het nummer eruit
+        naam_deel = bestand.split('_')
+        if len(naam_deel) >= 2:
+            try:
+                # Verkrijg de size en spelnummer
+                size_deel = naam_deel[0].replace('Rushhour', '')  # Haal "Rushhour" weg
+                size = int(size_deel[0])  # Het eerste cijfer van de size is de gridgrootte
+                spelnummer = int(naam_deel[1].replace('.csv', ''))  # Haal het spelnummer eruit
+                spellen.append((spelnummer, size, bestand))
+            except ValueError:
+                continue  # Als de waarde geen nummer is, sla deze over
+
+    # Sorteer de spellen op spelnummer
+    spellen.sort()  # Sorteert eerst op spelnummer, dus van klein naar groot
 
     while True:
         try:
-            keuze = int(input(f"Kies een spelbord (1-{len(bestanden)}): "))
-            if 1 <= keuze <= len(bestanden):
-                return os.path.join(mapnaam, bestanden[keuze - 1])
+            keuze = int(input(f"Kies een spelbord (1-{len(spellen)}): "))
+            if 1 <= keuze <= len(spellen):
+                gekozen_bestand = spellen[keuze - 1][2]
+                size = spellen[keuze - 1][1]
+                return os.path.join(mapnaam, gekozen_bestand), size
             else:
                 print("Ongeldige keuze, probeer opnieuw.")
         except ValueError:
@@ -115,12 +164,12 @@ def kies_spelbord(mapnaam):
 # Voorbeeldgebruik
 if __name__ == "__main__":
     mapnaam = "gameboards"  # Update naar de map waar je spelborden staan
-    pad_naar_csv = kies_spelbord(mapnaam)
+    pad_naar_csv, size = kies_spelbord(mapnaam)
     if pad_naar_csv:
         autos = lees_csv_bestand(pad_naar_csv)
 
-        speelveld = Grid()
+        speelveld = Grid(size)  # Zorg ervoor dat de size wordt doorgegeven aan Grid
         for auto in autos:
-            speelveld.voeg_auto_toe(auto)
+            speelveld.toevoeg_auto(auto)
 
         speelveld.toon_bord()
