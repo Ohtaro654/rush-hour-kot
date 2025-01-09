@@ -244,7 +244,7 @@ if __name__ == "__main__":
             speelveld.toon_bord()
             vraag_en_beweeg(speelveld, autos)
 
-            # Controleer of de X aan de rechterkant is om het spel te winnen
+            # Controleer of de X aan de rechterkant is om het spel te winne
             if any(auto.naam == "X" and auto.positie[1] + auto.lengte - 1 == size - 1 for auto in autos):
                 print("Gefeliciteerd! Je hebt het spel gewonnen!")
                 break
