@@ -245,6 +245,6 @@ if __name__ == "__main__":
             vraag_en_beweeg(speelveld, autos)
 
             # Controleer of de X aan de rechterkant is om het spel te winnen
-            if any(auto.naam == "X" and auto.positie[1] == size for auto in autos):
+            if any(auto.naam == "X" and auto.positie[1] + auto.lengte - 1 == size - 1 for auto in autos):
                 print("Gefeliciteerd! Je hebt het spel gewonnen!")
                 break
