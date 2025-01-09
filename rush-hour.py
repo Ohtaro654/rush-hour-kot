@@ -11,9 +11,6 @@ class Auto():
         self.ligging = ligging
 
 class Grid():
-    '''
-    Variabele size (voor grid) toevoegen.
-    '''
     def __init__(self, size):
         # Maakt grid van 6x6 met _
         self.size = size
@@ -66,14 +63,6 @@ class Grid():
         # Voeg een onderste rand toe
         print("#  " * (self.size + 2))
 
-    
-        '''
-        Finish maken
-        '''
-                
-    '''
-    Variabele 'stappen' toevoegen voor hoeveel stappen je wilt zetten met auto
-    '''
     def beweeg_auto(self, auto, richting, stapgrootte):
         row, col = auto.positie
         
@@ -246,5 +235,6 @@ if __name__ == "__main__":
 
             # Controleer of de X aan de rechterkant is om het spel te winnen
             if any(auto.naam == "X" and auto.positie[1] + auto.lengte - 1 == size - 1 for auto in autos):
+                speelveld.toon_bord()
                 print("Gefeliciteerd! Je hebt het spel gewonnen!")
                 break
