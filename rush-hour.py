@@ -49,8 +49,23 @@ class Grid():
                 self.grid[row + j][col] = auto.naam
         
     def toon_bord(self):
-        for row in self.grid:
-            print(' '.join(row))
+        # Voeg een bovenste rand toe
+        print("#  " * (self.size + 2))  # Twee extra kolommen voor de border
+
+        for row_index, row in enumerate(self.grid):
+            # Voeg een linker rand toe
+            row_string = "#  " + " ".join(f"{cel:<2}" for cel in row)
+            # Controleer of dit de rij is waar de uitgang zit
+            if any(cel == "X" for cel in row):
+                # Laat de rechterkant open
+                print(row_string + " ")
+            else:
+                # Voeg een rechter rand toe
+                print(row_string + " #")
+
+        # Voeg een onderste rand toe
+        print("#  " * (self.size + 2))
+
     
         '''
         Finish maken
@@ -75,9 +90,11 @@ class Grid():
                         self.grid[row][col + auto.lengte - i - 1] = '_'
                     # Positieverandering
                     col -= stapgrootte
-                    
+                else:
+                    print("Oei botsing, beweging niet mogelijk!")    
+
             elif richting == 'Rechts':
-                if col + stappgrootte + auto.lengte - 1 < self.size and all(self.grid[row][col + auto.lengte + i] == '_' for i in range(stapgrootte)):
+                if col + stapgrootte + auto.lengte - 1 < self.size and all(self.grid[row][col + auto.lengte + i] == '_' for i in range(stapgrootte)):
                     for i in range(auto.lengte):
                         self.grid[row][col + stapgrootte + i] = auto.naam
                     # Meest linkse wordt leeg
@@ -85,8 +102,8 @@ class Grid():
                         self.grid[row][col + i] = '_'
                     # Positieverandering
                     col += stapgrootte
-            else:
-                raise ValueError("Ongeldige richting voor horizontale auto!")
+                else:
+                    print("Oei botsing, beweging niet mogelijk!")  
 
         # Ligging verticaal
         elif auto.ligging == 'V':
@@ -96,8 +113,10 @@ class Grid():
                         self.grid[row - stapgrootte + i][col] = auto.naam
                     for i in range(stapgrootte):
                         self.grid[row + auto.lengte - i - 1][col] = '_'
-                        row -= stapgrootte
-    
+                    row -= stapgrootte
+                else:
+                    print("Oei botsing, beweging niet mogelijk!")
+            
             elif richting == 'Onder':
                 if row + stapgrootte + auto.lengte - 1 < self.size and all(self.grid[row + auto.lengte + i][col] == '_' for i in range(stapgrootte)):
                     for i in range(auto.lengte):
@@ -105,6 +124,8 @@ class Grid():
                     for i in range(stapgrootte):
                         self.grid[row + i][col] = '_'
                     row += stapgrootte
+                else:
+                    print("Oei botsing of buiten het speelveld, beweging niet mogelijk!")
             else:
                 raise ValueError("Ongeldige richting voor verticale auto!")
         # Update positie
@@ -140,15 +161,21 @@ def kies_spelbord(mapnaam):
             try:
                 # Verkrijg de size en spelnummer
                 size_deel = naam_deel[0].replace('Rushhour', '')  # Haal "Rushhour" weg
-                if isdigit(size_deel[1]):
-                    size = int(size_deel[0])  # Het eerste cijfer van de size is de gridgrootte
+                
+                # Controleer of de grootte uit één of twee cijfers bestaat
+                if len(size_deel) >= 2 and size_deel[1].isdigit():
+                    size = int(size_deel[:2])  # Neem de eerste twee karakters als getal (bijv. '12' uit '12x12')
                 else:
-                    size = size_deel[0]
-                    
-                spelnummer = int(naam_deel[1].replace('.csv', ''))  # Haal het spelnummer eruit
+                    size = int(size_deel[0])  # Neem het eerste cijfer (bijv. '6' uit '6x6')
+                
+                # Haal het spelnummer eruit
+                spelnummer = int(naam_deel[1].replace('.csv', ''))
+                
+                # Voeg het spel toe aan de lijst
                 spellen.append((spelnummer, size, bestand))
             except ValueError:
                 continue  # Als de waarde geen nummer is, sla deze over
+
 
     # Sorteer de spellen op spelnummer
     spellen.sort()  # Sorteert eerst op spelnummer, dus van klein naar groot
@@ -166,14 +193,58 @@ def kies_spelbord(mapnaam):
             print("Voer een geldig nummer in.")
 
 # Voorbeeldgebruik
+def vraag_en_beweeg(speelveld, autos):
+    """
+    Vraag de gebruiker om een auto te verplaatsen en voer de beweging uit.
+    """
+    while True:
+        try:
+            # Vraag om de naam van de auto
+            auto_naam = input("Welke auto wil je verplaatsen? ").strip()
+            auto_naam = auto_naam.upper()
+            # Controleer of de auto bestaat
+            auto = next((a for a in autos if a.naam == auto_naam), None)
+            if not auto:
+                print("Auto niet gevonden. Probeer opnieuw.")
+                continue
+
+            # Vraag om het aantal blokjes om te verplaatsen
+            stappen = int(input("Met hoeveel blokjes wil je de auto verplaatsen? (Bijvoorbeeld: -2 voor achteruit, 3 voor vooruit): "))
+            
+            # Bepaal de richting op basis van de ligging van de auto
+            if stappen > 0 and auto.ligging == "H":
+                richting = "Rechts"
+            elif stappen < 0 and auto.ligging == "H":
+                richting = "Links"
+            elif stappen > 0 and auto.ligging == "V":
+                richting = "Onder"
+            else:
+                richting = "Boven"
+
+            # Roep jouw beweeg_auto functie aan
+            speelveld.beweeg_auto(auto, richting, abs(stappen))
+            
+            # Beweging succesvol, stop de loop
+            break
+        except ValueError:
+            print("Ongeldige invoer")
+
+# Game loop voorbeeld
 if __name__ == "__main__":
-    mapnaam = "gameboards"  # Update naar de map waar je spelborden staan
+    mapnaam = "gameboards"  # Map waar spelborden staan
     pad_naar_csv, size = kies_spelbord(mapnaam)
     if pad_naar_csv:
         autos = lees_csv_bestand(pad_naar_csv)
 
-        speelveld = Grid(size)  # Zorg ervoor dat de size wordt doorgegeven aan Grid
+        speelveld = Grid(size)
         for auto in autos:
             speelveld.toevoeg_auto(auto)
 
-        speelveld.toon_bord()
+        while True:
+            speelveld.toon_bord()
+            vraag_en_beweeg(speelveld, autos)
+
+            # Controleer of de X aan de rechterkant is om het spel te winnen
+            if any(auto.naam == "X" and auto.positie[1] == size - 1 for auto in autos):
+                print("Gefeliciteerd! Je hebt het spel gewonnen!")
+                break
