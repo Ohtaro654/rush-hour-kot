@@ -62,6 +62,8 @@ class Grid():
 
         # Voeg een onderste rand toe
         print("#  " * (self.size + 2))
+        
+        print('\n')
 
     def beweeg_auto(self, auto, richting, stapgrootte):
         row, col = auto.positie
@@ -80,7 +82,8 @@ class Grid():
                     # Positieverandering
                     col -= stapgrootte
                 else:
-                    print("Oei botsing, beweging niet mogelijk!")    
+                    print("Oei botsing, beweging niet mogelijk!")   
+                    print('\n')
 
             elif richting == 'Rechts':
                 if col + stapgrootte + auto.lengte - 1 < self.size and all(self.grid[row][col + auto.lengte + i] == '_' for i in range(stapgrootte)):
@@ -92,7 +95,8 @@ class Grid():
                     # Positieverandering
                     col += stapgrootte
                 else:
-                    print("Oei botsing, beweging niet mogelijk!")  
+                    print("Oei botsing, beweging niet mogelijk!") 
+                    print('\n')
 
         # Ligging verticaal
         elif auto.ligging == 'V':
@@ -105,6 +109,7 @@ class Grid():
                     row -= stapgrootte
                 else:
                     print("Oei botsing, beweging niet mogelijk!")
+                    print('\n')
             
             elif richting == 'Onder':
                 if row + stapgrootte + auto.lengte - 1 < self.size and all(self.grid[row + auto.lengte + i][col] == '_' for i in range(stapgrootte)):
@@ -115,6 +120,7 @@ class Grid():
                     row += stapgrootte
                 else:
                     print("Oei botsing of buiten het speelveld, beweging niet mogelijk!")
+                    print('\n')
             else:
                 raise ValueError("Ongeldige richting voor verticale auto!")
         # Update positie
