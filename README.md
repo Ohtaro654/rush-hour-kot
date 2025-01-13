@@ -1,4 +1,3 @@
-```markdown
 # 🚗 **Rush Hour Project - door TaKuOh**  
 ## 🧩 **Algoritme om het spel op te lossen!**
 
@@ -43,4 +42,3 @@ python3 rush-hour.py
 © 2025 **Rush Hour Project Team**. Alle rechten voorbehouden.  
 
 **Auteurs**: T, K, O
-```
