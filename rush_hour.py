@@ -113,6 +113,35 @@ class Grid():
         # Update positie
         auto.positie = (row, col)
 
+    def is_vrij(self, auto, richting, stappen):
+        row, col = auto.positie
+        lengte = auto.lengte
+        ligging = auto.ligging
+
+        if ligging == 'H':
+            if richting == "Rechts":
+                for i in range(stappen):
+                    if col + lengte + i >= self.size or self.grid[row][col + lengte + i] != "_":
+                        return False
+                    
+            elif richting =="Links":
+                for i in range(stappen):
+                    if col - 1 - i  < 0 or self.grid[row][col - 1 - i] != "_":
+                        return False
+                    
+        elif ligging == 'V':
+            if richting == "Onder":
+                for i in range(stappen):
+                    if row + lengte + i >= self.size or self.grid[row + lengte + i][col] != "_":
+                        return False
+                    
+        elif richting == "Boven":
+            for i in range(stappen):
+                if row - 1 - i < 0 or self.grid[row - 1 - i][col] != "_":
+                    return False
+
+        return True
+    
 def lees_csv_bestand(pad):
     autos = []
     with open(pad, newline='') as csvfile:
@@ -187,7 +216,7 @@ def start_algoritme():
     Voert het random algoritme uit en speelt het spel volledig.
     """
     try:
-        aantal_zetten = random_algoritme(speelveld, autos)
+        aantal_zetten = randomnew(speelveld, autos)
         message = f"Het spel is gewonnen in {aantal_zetten} zetten!"
     except Exception as e:
         message = f"Er is een fout opgetreden: {e}"
