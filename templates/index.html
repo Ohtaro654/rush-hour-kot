@@ -4,149 +4,113 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rush Hour</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #f4f4f4;
-            padding: 20px;
-        }
-
-        h1 {
-            color: #2c3e50;
-        }
-
-        table {
-            margin: 20px auto;
-            border-collapse: collapse;
-        }
-
-        td {
-            width: 40px;
-            height: 40px;
-            text-align: center;
-            vertical-align: middle;
-            font-size: 18px;
-            font-weight: bold;
-            border: 1px solid #ccc;
-            transition: background-color 0.3s;
-        }
-
-        .car-A { background-color: #ffadad; }
-        .car-B { background-color: #ffd6a5; }
-        .car-C { background-color: #fdffb6; }
-        .car-D { background-color: #caffbf; }
-        .car-E { background-color: #9bf6ff; }
-        .car-F { background-color: #a0c4ff; }
-        .car-G { background-color: #bdb2ff; }
-        .car-H { background-color: #ffc6ff; }
-        .car-I { background-color: #d0f4de; }
-        .car-J { background-color: #f1c0e8; }
-        .car-K { background-color: #ff9aa2; }
-        .car-L { background-color: #ffb7b2; }
-        .car-M { background-color: #ffdac1; }
-        .car-N { background-color: #e2f0cb; }
-        .car-O { background-color: #c7ceea; }
-        .car-P { background-color: #d5a6bd; }
-        .car-Q { background-color: #d5c6e0; }
-        .car-R { background-color: #b4a7d6; }
-        .car-S { background-color: #ffe599; }
-        .car-T { background-color: #f9cb9c; }
-        .car-U { background-color: #f6e0b5; }
-        .car-V { background-color: #d9ead3; }
-        .car-W { background-color: #cfe2f3; }
-        .car-X { background-color: #cfe7e7; }
-        .car-Y { background-color: #c2d6f2; }
-        .car-Z { background-color: #d9d2e9; }
-        .car-AA { background-color: #ead1dc; }
-        .car-AB { background-color: #f4cccc; }
-        .car-AC { background-color: #fce5cd; }
-        .car-AD { background-color: #fff2cc; }
-        .car-AE { background-color: #d9ead3; }
-        .car-AF { background-color: #d0e0e3; }
-        .car-AG { background-color: #c9daf8; }
-        .car-AH { background-color: #d9d2e9; }
-        .car-AI { background-color: #e6b8af; }
-        .car-AJ { background-color: #f6b26b; }
-        .car-AK { background-color: #ffd966; }
-        .car-AL { background-color: #93c47d; }
-        .car-AM { background-color: #76a5af; }
-        .car-AN { background-color: #6d9eeb; }
-        .car-AO { background-color: #8e7cc3; }
-        .car-AP { background-color: #c27ba0; }
-        .car-AQ { background-color: #cc4125; }
-        .car-AR { background-color: #e69138; }
-        .car-AS { background-color: #ffd966; }
-
-        form {
-            margin: 20px;
-        }
-
-        select, button {
-            padding: 10px;
-            margin: 5px;
-            font-size: 16px;
-        }
-
-        .finish-cell {
-        border: none;
-        font-weight: bold;
-        color: red;
-        }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body>
-    <h1>Rush Hour van TaKuOh</h1>
-    
-    {% if not grid %}
-        <h2>Kies een spelbord</h2>
-        <form method="POST" action="/">
-            <select name="spel" required>
-                {% for spel in spellen %}
-                    <option value="{{ spel }}">{{ spel }}</option>
+    <div class="container">
+        <h1>Rush Hour van TaKuOh</h1>
+        
+        {% if not grid %}
+            <h2>Kies een spelbord</h2>
+            <form method="POST" action="/">
+                <select name="spel" required>
+                    {% for spel in spellen %}
+                        <option value="{{ spel }}">{{ spel }}</option>
+                    {% endfor %}
+                </select>
+                <button type="submit">Laad Spelbord</button>
+            </form>
+        {% else %}
+            <table>
+                <tr>
+                    <td class="border-cell"></td>
+                    {% for col in grid %}
+                        <td class="border-cell"></td>
+                    {% endfor %}
+                    <td class="border-cell"></td>
+                </tr>
+            
+                {% for row in grid %}
+                    <tr>
+                        <td class="border-cell"></td>
+            
+                        {% for cell in row %}
+                            <td class="car-{{ cell }}">
+                                {{ cell }}
+                            </td>
+                        {% endfor %}
+            
+                        {% if 'X' in row %}
+                            <td class="finish-cell"></td>
+                        {% else %}
+                            <td class="border-cell"></td>
+                        {% endif %}
+                    </tr>
                 {% endfor %}
-            </select>
-            <button type="submit">Laad Spelbord</button>
-        </form>
-    {% else %}
-        <table>
-            {% set row_index = 0 %}
-            {% for row in grid %}
-            <tr>
-                {% for cell in row %}
-                <td class="car-{{ cell }} outer-border">
-                    {{ cell }}
-                </td>
-                {% endfor %}
-                {% if 'X' in row %}
-                <td class="finish-cell">Finish</td>
+            
+                <tr>
+                    <td class="border-cell"></td>
+                    {% for col in grid %}
+                        <td class="border-cell"></td>
+                    {% endfor %}
+                    <td class="border-cell"></td>
+                </tr>
+            </table>
+        
+
+            <form method="POST" action="/vraag_en_beweeg">
+                <label for="auto_naam">Auto:</label>
+                <input type="text" name="auto_naam" id="auto_naam" required>
+
+                <label for="stappen">Stappen:</label>
+                <input type="number" name="stappen" id="stappen" required>
+
+                <button type="submit">Beweeg</button>
+                {% if message1 %}
+                <p class="message">{{ message1 }}</p>
                 {% endif %}
-            </tr>
-            {% set row_index = row_index + 1 %}
-            {% endfor %}
-        </table>
+            </form>
 
-        <form method="POST" action="/vraag_en_beweeg">
-            <label for="auto_naam">Auto:</label>
-            <input type="text" name="auto_naam" id="auto_naam" required>
+            <form method="GET" action="/plot">
+                <label for="algoritme">Kies een algoritme:</label>
+                <select name="algoritme" id="algoritme" required>
+                    <option value="" disabled selected>Selecteer een algoritme</option>
+                    <option value="random_oud">Random Oud Algoritme</option>
+                    <option value="random_new">Random Nieuw Algoritme</option>
+                    <option value="bfs">Breadth-First Search (BFS)</option>
+                </select>
+                
+                <label for="aantal_keer">Hoeveelheid Potjes:</label>
+                <input type="number" name="aantal_keer" id="aantal_keer" required>
 
-            <label for="stappen">Stappen:</label>
-            <input type="number" name="stappen" id="stappen" required>
+                <button type="submit">Plot Grafiek</button>
+            </form>
 
-            <button type="submit">Beweeg</button>
-        </form>
-
-        <form method="GET" action="/start_algoritme">
-            <button type="submit">Start Algoritme</button>
-        </form>
-
-        {% if message %}
-            <p>{{ message }}</p>
+            <form method="GET" action="/start_algoritme">
+                <label for="algoritme">Kies een algoritme:</label>
+                <select name="algoritme" id="algoritme" required>
+                    <option value="" disabled selected>Selecteer een algoritme</option>
+                    <option value="random_oud">Random Oud Algoritme</option>
+                    <option value="random_new">Random Nieuw Algoritme</option>
+                    <option value="bfs">Breadth-First Search (BFS)</option>
+                </select>
+                <button type="submit">Start Algoritme</button>
+            </form>
+            
+            {% if message %}
+                <p class="message">{{ message }}</p>
+            {% endif %}
+            
+            <form method="GET" action="/restart">
+                <button type="submit">Herstart Spel</button>
+            </form>
+            
+            <div class="back-button">
+                <form method="GET" action="/">
+                    <button type="submit">Terug naar menu</button>
+                </form>
+            </div>
         {% endif %}
-
-        <form method="GET" action="/">
-            <button type="submit">Terug naar menu</button>
-        </form>
-    {% endif %}
+    </div>
 </body>
 </html>
