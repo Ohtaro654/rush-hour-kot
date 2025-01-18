@@ -42,6 +42,21 @@ class Grid():
             for j in range(auto.lengte):
                 self.grid[row + j][col] = auto.naam
 
+    # Kijken of bord is opgelost.
+    # Lijkt op toon_bord functie.
+    def opgelost(self):
+        # Door elke rij bord.
+        for row in self.grid:
+            # Door elke cel
+            for col_index, cell in enumerate(row):
+                # Als Cell X is
+                if cell == "X":
+                    # Als X op goede plek staat
+                    if col_index == self.size - 1:
+                        return True
+        return False
+
+
     def is_vrij(self, auto, richting, stappen):
         row, col = auto.positie
         lengte = auto.lengte
