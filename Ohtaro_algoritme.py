@@ -13,3 +13,20 @@ def dfa_algoritme(speelveld, autos):
     begin_bord = tuple(sorted((auto.naam, auto.positie) for auto in autos))
     # Append speelveld, auto's, bord nu en aantal zetten en diepte
     stack.append((speelveld, autos, begin_bord, 0))
+
+    while len(stack) > 0:
+        # Pop tuple
+        nieuw_veld, huidig_autos, status, diepte = stack.pop()
+
+        # Kijk of het nieuwe veld is opgelost
+        if nieuw_veld.opgelost():
+            print(f"Spel opgelost in {diepte} zetten!")
+            nieuw_veld.toon_bord()  # Show the final board
+            return
+        
+                # Skip status (tuple) over als het al is bezocht
+        if status in visited and visited[status] <= diepte:
+            continue
+
+        # De tuple als key, diepte als value
+        visited[status] = diepte
