@@ -30,3 +30,12 @@ def dfa_algoritme(speelveld, autos):
 
         # De tuple als key, diepte als value
         visited[status] = diepte
+
+        for auto in huidig_autos:
+            # Door mogelijke richtingen
+            for richting in ["Links", "Rechts"] if auto.ligging == 'H' else ["Boven", "Onder"]:
+                # Aantal stappen die auto's kunnen zetten
+                for stappen in range(1, speelveld.size):
+                    # Kijken of auto kan bewegen
+                    if nieuw_veld.is_vrij(auto, richting, stappen):
+                        print(f"Mogeijke stap: {auto.naam} beweegt {richting} met {stappen} stap.")
