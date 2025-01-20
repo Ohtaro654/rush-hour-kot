@@ -1,5 +1,6 @@
 from rush_hour_noflask import *
 import copy
+import time
 
 def dfa_algoritme(speelveld, autos):
     # Stack voor depth first
@@ -14,6 +15,7 @@ def dfa_algoritme(speelveld, autos):
     # Append speelveld, auto's, bord nu en aantal zetten en diepte
     stack.append((speelveld, autos, begin_bord, 0))
 
+    start_tijd = time.time()
 
     while len(stack) > 0:
         # Pop tuple
@@ -21,7 +23,10 @@ def dfa_algoritme(speelveld, autos):
 
         # Kijk of het nieuwe veld is opgelost
         if nieuw_veld.opgelost():
+            eind_tijd = time.time()
+            ren_tijd = eind_tijd - start_tijd
             print(f"Spel opgelost in {diepte} zetten!")
+            print(f"Rentijd: {ren_tijd:.2f} seconden")
             nieuw_veld.toon_bord()  # Show the final board
             return
 
@@ -38,7 +43,6 @@ def dfa_algoritme(speelveld, autos):
             for richting in ["Links", "Rechts"] if auto.ligging == 'H' else ["Boven", "Onder"]:
                 # Aantal stappen die auto's kunnen zetten
                 for stappen in range(1, speelveld.size):
-                    # Check if the car can move `stappen` steps in the given direction
                     if nieuw_veld.is_vrij(auto, richting, stappen):
                         if stappen < 2:
                             print(f"Mogeijke stap: {auto.naam} beweegt {richting} met {stappen} stap.")
@@ -72,9 +76,9 @@ def dfa_algoritme(speelveld, autos):
         print(f"Beweeg {zetten}: diepte {diepte}")
         nieuw_veld.toon_bord()
 
-    print("Geen oplossing gevonden")
-
-
+    eind_tijd = time.time()
+    rentijd = eind_tijd - start_tijd
+    print(f"Geen oplossing gevonden. Rentijd: {ren_tijd:.2f} seconden")
 
 if __name__ == "__main__":
     mapnaam = "gameboards"
