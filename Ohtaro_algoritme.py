@@ -14,6 +14,7 @@ def dfa_algoritme(speelveld, autos):
     # Append speelveld, auto's, bord nu en aantal zetten en diepte
     stack.append((speelveld, autos, begin_bord, 0))
 
+
     while len(stack) > 0:
         # Pop tuple
         nieuw_veld, huidig_autos, status, diepte = stack.pop()
@@ -23,23 +24,26 @@ def dfa_algoritme(speelveld, autos):
             print(f"Spel opgelost in {diepte} zetten!")
             nieuw_veld.toon_bord()  # Show the final board
             return
-        
-                # Skip status (tuple) over als het al is bezocht
+
+        # Skip status (tuple) over als het al is bezocht
         if status in visited and visited[status] <= diepte:
             continue
 
         # De tuple als key, diepte als value
         visited[status] = diepte
 
+        # Alle zetten van auto's
         for auto in huidig_autos:
             # Door mogelijke richtingen
             for richting in ["Links", "Rechts"] if auto.ligging == 'H' else ["Boven", "Onder"]:
                 # Aantal stappen die auto's kunnen zetten
                 for stappen in range(1, speelveld.size):
-                    # Kijken of auto kan bewegen
+                    # Check if the car can move `stappen` steps in the given direction
                     if nieuw_veld.is_vrij(auto, richting, stappen):
-                        print(f"Mogeijke stap: {auto.naam} beweegt {richting} met {stappen} stap.")
-
+                        if stappen < 2:
+                            print(f"Mogeijke stap: {auto.naam} beweegt {richting} met {stappen} stap.")
+                        else:
+                            print(f"Mogeijke stap: {auto.naam} beweegt {richting} met {stappen} stappen.")
                         '''
                         Nu alles met deepcopy, we willen originele bord niet veranderen.
                         '''
@@ -57,16 +61,20 @@ def dfa_algoritme(speelveld, autos):
                         # tuple met bord als een tuple
                         new_status = tuple(sorted((a.naam, a.positie) for a in autos_copy))
 
-                        
                         # Push het nieuwe bord op de stack
                         stack.append((nieuw_veld_copy, autos_copy, new_status, diepte + 1))
 
-        zetten += 1
+                    else:
+                        # Als het niet vrij is
+                        break
 
+        zetten += 1
         print(f"Beweeg {zetten}: diepte {diepte}")
         nieuw_veld.toon_bord()
 
-    print("No solution found.")
+    print("Geen oplossing gevonden")
+
+
 
 if __name__ == "__main__":
     mapnaam = "gameboards"
