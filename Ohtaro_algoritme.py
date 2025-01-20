@@ -39,3 +39,43 @@ def dfa_algoritme(speelveld, autos):
                     # Kijken of auto kan bewegen
                     if nieuw_veld.is_vrij(auto, richting, stappen):
                         print(f"Mogeijke stap: {auto.naam} beweegt {richting} met {stappen} stap.")
+
+                        '''
+                        Nu alles met deepcopy, we willen originele bord niet veranderen.
+                        '''
+
+                        # Kopie van veld en auto's
+                        nieuw_veld_copy = copy.deepcopy(nieuw_veld)
+                        autos_copy = copy.deepcopy(huidig_autos)
+
+                        # Welke auto te bewegen
+                        auto_copy = next(a for a in autos_copy if a.naam == auto.naam)
+
+                        # Beweeg de auto
+                        nieuw_veld_copy.beweeg_auto(auto_copy, richting, stappen)
+
+                        # tuple met bord als een tuple
+                        new_status = tuple(sorted((a.naam, a.positie) for a in autos_copy))
+
+                        
+                        # Push het nieuwe bord op de stack
+                        stack.append((nieuw_veld_copy, autos_copy, new_status, diepte + 1))
+
+        zetten += 1
+
+        print(f"Beweeg {zetten}: diepte {diepte}")
+        nieuw_veld.toon_bord()
+
+    print("No solution found.")
+
+if __name__ == "__main__":
+    mapnaam = "gameboards"
+    pad_naar_csv, size = kies_spelbord(mapnaam)
+    if pad_naar_csv:
+        autos = lees_csv_bestand(pad_naar_csv)
+        speelveld = Grid(size)
+        for auto in autos:
+            speelveld.toevoeg_auto(auto)
+
+        print("Start het algoritme")
+        dfa_algoritme(speelveld, autos)
