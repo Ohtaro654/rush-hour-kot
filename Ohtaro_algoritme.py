@@ -6,7 +6,7 @@ def dfa_algoritme(speelveld, autos):
     # Stack voor depth first
     stack = []
     # Dictionary al bezochte borden (geen repetitie)
-    visited = {}
+    visited = set()
     # Aantal zetten bijhouden
     zetten = 0
 
@@ -31,11 +31,11 @@ def dfa_algoritme(speelveld, autos):
             return
 
         # Skip status (tuple) over als het al is bezocht
-        if status in visited and visited[status] <= diepte:
+        if status in visited:
             continue
 
         # De tuple als key, diepte als value
-        visited[status] = diepte
+        visited.add(status)
 
         # Alle zetten van auto's
         for auto in huidig_autos:
