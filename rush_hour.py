@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, jsonify
 from rush_hour_algoritme import *
 import matplotlib.pyplot as plt
 import os
@@ -145,6 +145,20 @@ class Grid():
                         return False
 
         return True
+    
+    # Kijken of bord is opgelost.
+    # Lijkt op toon_bord functie.
+    def opgelost(self):
+        # Door elke rij bord.
+        for row in self.grid:
+            # Door elke cel
+            for col_index, cell in enumerate(row):
+                # Als Cell X is
+                if cell == "X":
+                    # Als X op goede plek staat
+                    if col_index == self.size - 1:
+                        return True
+        return False
 
 def mogelijke_stappen(random_auto, speelveld):
     ligging = random_auto.ligging
@@ -280,7 +294,7 @@ def plot():
         # maak histogram
         plt.figure(figsize=(10, 6))
         plt.hist(moves_list, bins=30, edgecolor='black', alpha=0.75)
-        plt.title(f"Distribution of Moves to win {aantal_keer}x")
+        plt.title(f"Distribution of Moves to win {aantal_keer}x with {algoritme}")
         plt.xlabel("Number of Moves")
         plt.ylabel("Frequency")
         plt.tight_layout()
@@ -330,6 +344,8 @@ def start_algoritme():
             aantal_zetten = random_algoritme_nieuw(speelveld, autos)
         elif algoritme == "bfs":
             aantal_zetten = bfs_algoritme(speelveld, autos)
+        elif algoritme == "dfa":
+            aantal_zetten = dfa_algoritme(speelveld, autos)
         else:
             raise ValueError("Onbekend algoritme geselecteerd.")
         
