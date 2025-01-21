@@ -1,5 +1,6 @@
 from collections import deque
 import copy
+import time
 from ..helpers import *
 
 def BFSAlgoritme(speelveld, autos):
@@ -7,17 +8,22 @@ def BFSAlgoritme(speelveld, autos):
     queue = deque([(copy.deepcopy(speelveld), copy.deepcopy(autos), 0, [])])
     visited = set([tuple(tuple(row) for row in speelveld.toon_bord())])
 
+    start_tijd = time.time()
+
     while queue:
         current_speelveld, current_autos, zetten, move_history = queue.popleft()
 
         # check of gesolved is
         for auto in current_autos:
             if auto.naam == "X" and auto.positie[1] + auto.lengte - 1 == current_speelveld.size - 1:
-                print(f"Oplossing gevonden in {zetten} zetten!")
+                eind_tijd = time.time()
+                ren_tijd = eind_tijd - start_tijd
+                print(f"Spel opgelost in {zetten} zetten!")
+                print(f"Rentijd: {ren_tijd:.2f} seconden")
                 # zoja zetten op echte spelbord uitvoeren
                 for move in move_history:
                     speelveld.beweeg_auto(*move)
-                return zetten
+                return zetten, ren_tijd
 
         # alle mogelijke bewegingn generen
         for auto in current_autos:
@@ -42,5 +48,7 @@ def BFSAlgoritme(speelveld, autos):
                         visited.add(bord_str)
                         queue.append((nieuw_speelveld, nieuwe_autos, zetten + 1, move_history + [(auto, richting, abs(stappen))]))
 
-    print("Geen oplossing gevonden pik!")
+    eind_tijd = time.time()
+    ren_tijd = eind_tijd - start_tijd
+    print(f"Geen oplossing gevonden. Rentijd: {ren_tijd:.2f} seconden")
     return -1

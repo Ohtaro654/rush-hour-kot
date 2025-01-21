@@ -1,8 +1,11 @@
 import random
+import time
 from ..helpers import *
 
 def RandomAlgoritmeNieuw(speelveld, autos):
     aantal_zetten = 0  # Tel het aantal zetten
+
+    start_tijd = time.time()
 
     while True:
         try:
@@ -37,7 +40,11 @@ def RandomAlgoritmeNieuw(speelveld, autos):
             # Controleer of het spel is gewonnen
             if any(auto.naam == "X" and auto.positie[1] + auto.lengte - 1 == speelveld.size - 1 for auto in autos):
                 print("Het spel is gewonnen!")
-                return aantal_zetten  # Retourneer het aantal zetten zodra het spel is gewonnen
+                eind_tijd = time.time()
+                ren_tijd = eind_tijd - start_tijd
+                print(f"Spel opgelost in {aantal_zetten} zetten!")
+                print(f"Rentijd: {ren_tijd:.2f} seconden")
+                return aantal_zetten, ren_tijd  # Retourneer het aantal zetten zodra het spel is gewonnen
         
         except Exception as e:
             print(f"Error: {e}")

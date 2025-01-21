@@ -1,5 +1,7 @@
 import copy
 import time
+from ..helpers import *
+
 
 def DFAAlgoritme(speelveld, autos):
     # Stack voor depth first
@@ -27,7 +29,7 @@ def DFAAlgoritme(speelveld, autos):
             print(f"Spel opgelost in {diepte} zetten!")
             print(f"Rentijd: {ren_tijd:.2f} seconden")
             nieuw_veld.toon_bord()  # Show the final board
-            return zetten
+            return zetten, ren_tijd
 
         # Skip status (tuple) over als het al is bezocht
         if status in visited:
@@ -76,5 +78,5 @@ def DFAAlgoritme(speelveld, autos):
         nieuw_veld.toon_bord()
 
     eind_tijd = time.time()
-    rentijd = eind_tijd - start_tijd
+    ren_tijd = eind_tijd - start_tijd
     print(f"Geen oplossing gevonden. Rentijd: {ren_tijd:.2f} seconden")

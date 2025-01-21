@@ -166,17 +166,17 @@ def start_algoritme():
     algoritme = request.args.get('algoritme')  # Haal het geselecteerde algoritme op
     try:
         if algoritme == "random_oud":
-            aantal_zetten = RandomAlgoritmeOud(speelveld, autos)
+            aantal_zetten, tijd = RandomAlgoritmeOud(speelveld, autos)
         elif algoritme == "random_new":
-            aantal_zetten = RandomAlgoritmeNieuw(speelveld, autos)
+            aantal_zetten, tijd = RandomAlgoritmeNieuw(speelveld, autos)
         elif algoritme == "bfs":
-            aantal_zetten = BFSAlgoritme(speelveld, autos)
+            aantal_zetten, tijd = BFSAlgoritme(speelveld, autos)
         elif algoritme == "dfa":
-            aantal_zetten = DFAAlgoritme(speelveld, autos)
+            aantal_zetten, tijd = DFAAlgoritme(speelveld, autos)
         else:
             raise ValueError("Onbekend algoritme geselecteerd.")
         
-        message = f"Het spel is gewonnen in {aantal_zetten} zetten met het {algoritme}-algoritme!"
+        message = f"Het spel is gewonnen in {tijd:.2f} seconden met {aantal_zetten} zetten door het {algoritme}-algoritme!"
     except Exception as e:
         message = f"Er is een fout opgetreden: {e}"
 

@@ -1,8 +1,12 @@
 import random
+import time
+from ..helpers import *
 
 def RandomAlgoritmeOud(speelveld, autos):
     auto_lijst = []
     
+    start_tijd = time.time()
+
     for auto in autos:
         auto_lijst.append(auto.naam)
     
@@ -41,7 +45,11 @@ def RandomAlgoritmeOud(speelveld, autos):
             aantal_zetten += 1
             # Controleer of het spel is gewonnen
             if any(a.naam == "X" and a.positie[1] + a.lengte - 1 == speelveld.size - 1 for a in autos):
-                return aantal_zetten
+                eind_tijd = time.time()
+                ren_tijd = eind_tijd - start_tijd
+                print(f"Spel opgelost in {diepte} zetten!")
+                print(f"Rentijd: {ren_tijd:.2f} seconden")
+                return aantal_zetten, ren_tijd
         except ValueError:
             # Ongeldige zet, probeer opnieuw
             continue
