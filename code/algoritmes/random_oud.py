@@ -47,7 +47,7 @@ def RandomAlgoritmeOud(speelveld, autos):
             if any(a.naam == "X" and a.positie[1] + a.lengte - 1 == speelveld.size - 1 for a in autos):
                 eind_tijd = time.time()
                 ren_tijd = eind_tijd - start_tijd
-                print(f"Spel opgelost in {diepte} zetten!")
+                print(f"Spel opgelost in {aantal_zetten} zetten!")
                 print(f"Rentijd: {ren_tijd:.2f} seconden")
                 return aantal_zetten, ren_tijd
         except ValueError:

@@ -28,7 +28,9 @@ def DFAAlgoritme(speelveld, autos):
             ren_tijd = eind_tijd - start_tijd
             print(f"Spel opgelost in {diepte} zetten!")
             print(f"Rentijd: {ren_tijd:.2f} seconden")
-            nieuw_veld.toon_bord()  # Show the final board
+            # copy winnende bord naar originele speelveld
+            speelveld.grid = nieuw_veld.grid
+            speelveld.toon_bord()  # laat het eindbord zien
             return zetten, ren_tijd
 
         # Skip status (tuple) over als het al is bezocht
