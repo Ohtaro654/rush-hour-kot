@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 from code.classes.grid import Grid
 from code.classes.auto import Auto
 from code.helpers import *
-from code.randombord import generate_board
+#from code.randombord import generate_board
 from code.algoritmes.random_oud import RandomAlgoritmeOud
 from code.algoritmes.random_new import RandomAlgoritmeNieuw
 from code.algoritmes.bfs_algoritme import BFSAlgoritme
