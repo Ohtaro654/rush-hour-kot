@@ -135,3 +135,39 @@ class Grid():
                     if col_index == self.size - 1:
                         return True
         return False
+    
+
+    # Berekent maximale stappen per auto
+    def max_stappen(self, auto, richting):
+        row, col = auto.positie
+        lengte = auto.lengte
+        max_steps = 0
+
+        if auto.ligging == "H":
+            if richting == "Links":
+                while col - max_steps - 1 >= 0 and self.grid[row][col - max_steps - 1] == "_":
+                    max_steps += 1
+            elif richting == "Rechts":
+                while col + lengte + max_steps < self.size and self.grid[row][col + lengte + max_steps] == "_":
+                    max_steps += 1
+        elif auto.ligging == "V":
+            if richting == "Boven":
+                while row - max_steps - 1 >= 0 and self.grid[row - max_steps - 1][col] == "_":
+                    max_steps += 1
+            elif richting == "Onder":
+                while row + lengte + max_steps < self.size and self.grid[row + lengte + max_steps][col] == "_":
+                    max_steps += 1
+
+        return max_steps
+
+    # Beweegt auto
+    def move_position(self, position, richting, stappen):
+        row, col = position
+        if richting == "Links":
+            return (row, col - stappen)
+        elif richting == "Rechts":
+            return (row, col + stappen)
+        elif richting == "Boven":
+            return (row - stappen, col)
+        elif richting == "Onder":
+            return (row + stappen, col)
