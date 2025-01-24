@@ -20,6 +20,25 @@
                 </select>
                 <button type="submit">Laad Spelbord</button>
             </form>
+
+            <h2>Genereer een random bord</h2>
+            <form method="POST" action="/generate_random" id="random-form">
+                <label for="size">Kies de grootte van het bord:</label>
+                <select name="size" required>
+                    <option value="6">6x6</option>
+                    <option value="9">9x9</option>
+                    <option value="12">12x12</option>
+                </select>
+                
+                <label for="difficulty">Kies moeilijkheid:</label>
+                <select name="difficulty" required>
+                    <option value="makkelijk">Makkelijk</option>
+                    <option value="gemiddeld">Gemiddeld</option>
+                    <option value="moeilijk">Moeilijk</option>
+                </select>
+                
+                <button type="submit">Genereer Bord</button>
+            </form>
         {% else %}
             <table>
                 <tr>
@@ -78,7 +97,9 @@
                     <option value="random_oud">Random Oud Algoritme</option>
                     <option value="random_new">Random Nieuw Algoritme</option>
                     <option value="bfs">Breadth-First Search (BFS)</option>
-                    <option value="dfa">Depth-First Algoritme (DPA)</option>
+                    <option value="dfa">Depth-First Algoritme (DFA)</option>
+                    <option value="idds">Iterative Deepening Depth-First Search (IDDS)</option>
+                    <option value="aster">A-Ster Algoritme (A*)</option>
                 </select>
                 
                 <label for="aantal_keer">Hoeveelheid Potjes:</label>
@@ -94,7 +115,9 @@
                     <option value="random_oud">Random Oud Algoritme</option>
                     <option value="random_new">Random Nieuw Algoritme</option>
                     <option value="bfs">Breadth-First Search (BFS)</option>
-                    <option value="dfa">Depth-First Algoritme (DPA)</option>
+                    <option value="dfa">Depth-First Algoritme (DFA)</option>
+                    <option value="idds">Iterative Deepening Depth-First Search (IDDS)</option>
+                    <option value="aster">A-Ster Algoritme (A*)</option>
                 </select>
                 <button type="submit">Start Algoritme</button>
             </form>
