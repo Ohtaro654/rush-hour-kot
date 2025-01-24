@@ -4,81 +4,83 @@ from ..helpers import *
 
 
 def DFAAlgoritme(speelveld, autos):
-    # Stack voor depth first
+     # Stack voor depth first
     stack = []
-    # Dictionary al bezochte borden (geen repetitie)
+    # Al bezochte staten als set
     visited = set()
-    # Aantal zetten bijhouden
-    zetten = 0
-
-    # Bord nu als tuple met tuples van auto's met naam en positie
-    begin_bord = tuple(sorted((auto.naam, auto.positie) for auto in autos))
-    # Append speelveld, auto's, bord nu en aantal zetten en diepte
-    stack.append((speelveld, autos, begin_bord, 0))
-
+    aantal_zetten = 0
     start_tijd = time.time()
 
-    while len(stack) > 0:
-        # Pop tuple
-        nieuw_veld, huidig_autos, status, diepte = stack.pop()
+    '''
+    Bord als tuple in tuple, in de inner tuples hebben we de auto naam en auto posities zitten.
+    We hebben inner tuples voor alle auto's voor start grid.
+    '''
+    begin_bord = tuple(sorted((auto.naam, auto.positie) for auto in autos))
+    # Huidig bord en diepte stacken
+    stack.append((begin_bord, 0))
 
-        # Kijk of het nieuwe veld is opgelost
+    while len(stack) > 0:
+        # pop bovenste grid en diepte
+        huidig_bord, diepte = stack.pop()
+
+        # Skip als bord al is bezocht
+        if huidig_bord in visited:
+            continue
+        
+        # Voeg huidig bord toe aan al bezocht
+        visited.add(huidig_bord)
+
+        # Maak grid (nu alleen tuple) om te kijken of het opgelost is
+        nieuw_veld = Grid(speelveld.size)
+        # List voor alle auto's, later nodig
+        huidig_autos = []
+        # Loop over de tuple met naam en positie auto
+        for naam, positie in huidig_bord:
+            # Vind auto's door ze bij naam te matchen
+            auto = next(auto for auto in autos if auto.naam == naam)
+            # Krijg de positie van de auto
+            auto.positie = positie
+            # Voeg auto toe aan lijst
+            huidig_autos.append(auto)
+            # Voeg auto toe aan grid
+            nieuw_veld.toevoeg_auto(auto)
+
+        # Kijk of het opgelost is
         if nieuw_veld.opgelost():
             eind_tijd = time.time()
-            ren_tijd = eind_tijd - start_tijd
             print(f"Spel opgelost in {diepte} zetten!")
-            print(f"Rentijd: {ren_tijd:.2f} seconden")
-            # copy winnende bord naar originele speelveld
-            speelveld.grid = nieuw_veld.grid
-            speelveld.toon_bord()  # laat het eindbord zien
-            return zetten, ren_tijd
+            print(f"Rentijd: {eind_tijd - start_tijd:.2f} seconden")
+            nieuw_veld.toon_bord()
+            return diepte, eind_tijd - start_tijd
 
-        # Skip status (tuple) over als het al is bezocht
-        if status in visited:
-            continue
-
-        # De tuple als key, diepte als value
-        visited.add(status)
-
-        # Alle zetten van auto's
+        '''
+        Deze functie laat alle auto's alle bewegeingen die zij kunnen maken maken.
+        Per auto gaan we kijken hoe ze liggen, en kijken hoeveel stappen ze maximaal kunnen nemen.
+        '''
+        # Door alle auto's
         for auto in huidig_autos:
-            # Door mogelijke richtingen
-            for richting in ["Links", "Rechts"] if auto.ligging == 'H' else ["Boven", "Onder"]:
-                # Aantal stappen die auto's kunnen zetten
-                for stappen in range(1, speelveld.size):
-                    if nieuw_veld.is_vrij(auto, richting, stappen):
-                        if stappen < 2:
-                            print(f"Mogeijke stap: {auto.naam} beweegt {richting} met {stappen} stap.")
-                        else:
-                            print(f"Mogeijke stap: {auto.naam} beweegt {richting} met {stappen} stappen.")
-                        '''
-                        Nu alles met deepcopy, we willen originele bord niet veranderen.
-                        '''
+            # Kijk naar richtingen auto afhankelijk van ligging
+            for richting in ["Links", "Rechts"] if auto.ligging == "H" else ["Boven", "Onder"]:
+                # Bereken max aantal stappen van auto per richting
+                maximale_stappen = nieuw_veld.max_stappen(auto, richting)
+                # Door alle mogelijke stappen van auto
+                for stappen in range(1, maximale_stappen + 1):
+                    # Maak list van de tuples in current state zodat we ze kunnen aanpassen
+                    nieuw_bord = list(huidig_bord)
+                    # Gaat door de list
+                    for i, (naam, positie) in enumerate(nieuw_bord):
+                        # Wanneer de naam gelijk is aan de auto naam
+                        if naam == auto.naam:
+                            # Update positie auto positie
+                            nieuw_bord[i] = (naam, nieuw_veld.move_position(positie, richting, stappen))
+                            # Uit for loop, andere auto's niet meer checken
+                            break
+                    # Maak van nieuw bord weer tuple
+                    nieuw_bord = tuple(sorted(nieuw_bord))
 
-                        # Kopie van veld en auto's
-                        nieuw_veld_copy = copy.deepcopy(nieuw_veld)
-                        autos_copy = copy.deepcopy(huidig_autos)
+                    # Append deze nieuwe tuple
+                    stack.append((nieuw_bord, diepte + 1))
 
-                        # Welke auto te bewegen
-                        auto_copy = next(a for a in autos_copy if a.naam == auto.naam)
-
-                        # Beweeg de auto
-                        nieuw_veld_copy.beweeg_auto(auto_copy, richting, stappen)
-
-                        # tuple met bord als een tuple
-                        new_status = tuple(sorted((a.naam, a.positie) for a in autos_copy))
-
-                        # Push het nieuwe bord op de stack
-                        stack.append((nieuw_veld_copy, autos_copy, new_status, diepte + 1))
-
-                    else:
-                        # Als het niet vrij is
-                        break
-
-        zetten += 1
-        print(f"Beweeg {zetten}: diepte {diepte}")
-        nieuw_veld.toon_bord()
-
-    eind_tijd = time.time()
-    ren_tijd = eind_tijd - start_tijd
-    print(f"Geen oplossing gevonden. Rentijd: {ren_tijd:.2f} seconden")
+    # If the stack is empty and no solution was found
+    print("Geen oplossing gevonden.")
+    return aantal_zetten, time.time() - start_tijd
