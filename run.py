@@ -2,10 +2,13 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 from code.classes.grid import Grid
 from code.classes.auto import Auto
 from code.helpers import *
+from code.randombord import generate_board
 from code.algoritmes.random_oud import RandomAlgoritmeOud
 from code.algoritmes.random_new import RandomAlgoritmeNieuw
 from code.algoritmes.bfs_algoritme import BFSAlgoritme
 from code.algoritmes.dfa_algoritme import DFAAlgoritme
+from code.algoritmes.idds_algoritme import IDDSalgoritme
+from code.algoritmes.a_ster_algoritme import ASTERalgoritme
 import matplotlib.pyplot as plt
 import os
 import csv
@@ -111,6 +114,10 @@ def plot():
                     aantal_zetten = BFSAlgoritme(speelveld, autos)
                 elif algoritme == "dfa":
                     aantal_zetten = DFAAlgoritme(speelveld, autos)
+                elif algoritme == "idds":
+                    aantal_zetten = IDDSalgoritme(speelveld, autos)
+                elif algoritme == "aster":
+                    aantal_zetten = ASTERalgoritme(speelveld, autos)
                 else:
                     raise ValueError("Onbekend algoritme geselecteerd.")
             except Exception as e:
@@ -156,8 +163,7 @@ def restart_game():
         message = f"Fout bij opnieuw starten: {e}"
 
     return render_template('index.html', grid=speelveld.toon_bord(), autos=autos, message=message)
-
-
+    
 @app.route('/start_algoritme', methods=['GET'])
 def start_algoritme():
     """
@@ -173,6 +179,10 @@ def start_algoritme():
             aantal_zetten, tijd = BFSAlgoritme(speelveld, autos)
         elif algoritme == "dfa":
             aantal_zetten, tijd = DFAAlgoritme(speelveld, autos)
+        elif algoritme == "idds":
+            aantal_zetten, tijd = IDDSalgoritme(speelveld, autos)
+        elif algoritme == "aster":
+            aantal_zetten, tijd = ASTERalgoritme(speelveld, autos)
         else:
             raise ValueError("Onbekend algoritme geselecteerd.")
         
