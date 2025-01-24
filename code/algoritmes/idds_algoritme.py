@@ -1,61 +1,85 @@
-import copy
 import time
 from ..helpers import *
 
+'''
+Iterative deepening depth first algoritme, doet depth first voor iedere diepte.
+We gebruiken dict ipv set, omdat het hier niet alleen gaat om de bezochte nodes, maar ook om de dieptes.
+'''
 def IDDSalgoritme(speelveld, autos, max_diepte=100):
-    """
-    IDDS-algoritme: Iteratief Verdiepende Diepte search.
-    """
-    start_tijd = time.time()
-    zetten = 0
+    start_time = time.time()
 
-    for diepte in range(max_diepte):
-        print(f"Zoek op diepte {diepte}...")
-
-        begin_bord = tuple(sorted((auto.naam, auto.positie) for auto in autos))
-        stack = [(speelveld, autos, begin_bord, 0)]
-
-        '''
-        Hier gebruiken we dict ipv set zoals in depth first. In een dict kunnen we de diepte ook opslaan.
-        '''
+    # Gaat door elke diepte
+    for diepte_limiet in range(max_diepte):
+        print(f"Zoekt op diepte: {diepte_limiet}...")
+        stack = []
         visited = {}
 
-        while len(stack) > 0:
-            nieuw_veld, huidig_autos, status, huidig_diepte = stack.pop()
+        begin_bord = tuple(sorted((auto.naam, auto.positie) for auto in autos))
+        # Huidig bord en diepte stacken
+        stack.append((begin_bord, 0))
 
-            if huidig_diepte > diepte:
+        while stack:
+            huidig_bord, huidige_diepte = stack.pop()
+
+            if huidige_diepte > diepte_limiet:
                 continue
 
-            # Kijken of het spel is opgelost
+            # Maak grid (nu alleen tuple) om te kijken of het opgelost is
+            nieuw_veld = Grid(speelveld.size)
+            huidig_autos = []
+
+            # Loop over de tuple met naam en positie auto
+            for naam, positie in huidig_bord:
+                # Vind auto's door ze bij naam te matchen
+                auto = next(auto for auto in autos if auto.naam == naam)
+                # Krijg de positie van de auto
+                auto.positie = positie
+                # Voeg auto toe aan lijst
+                huidig_autos.append(auto)
+                # Voeg auto toe aan grid
+                nieuw_veld.toevoeg_auto(auto)
+
+            # Kijk of het opgelost is
             if nieuw_veld.opgelost():
-                eind_tijd = time.time()
-                ren_tijd = eind_tijd - start_tijd
-                print(f"Spel opgelost in {zetten} zetten!")
-                print(f"Rentijd: {ren_tijd:.2f} seconden")
-                speelveld.grid = nieuw_veld.grid
-                speelveld.toon_bord() # laat het eindbord zien
-                return zetten, ren_tijd
-
-            if status in visited and visited[status] <= huidig_diepte:
+                print(f"Spel opgelost in {huidige_diepte} zetten!")
+                nieuw_veld.toon_bord()
+                print(f"Uitgang gevonden op diepte: {diepte_limiet}!")
+                runtime = time.time() - start_time
+                return huidige_diepte, runtime
+            
+            if huidig_bord in visited and visited[huidig_bord] <= huidige_diepte:
                 continue
 
-            visited[status] = huidig_diepte
+            visited[huidig_bord] = huidige_diepte
 
+            '''
+            Deze functie laat alle auto's alle bewegingen die zij kunnen maken maken.
+            Per auto gaan we kijken hoe ze liggen, en kijken hoeveel stappen ze maximaal kunnen nemen.
+            '''
+            # Door alle auto's
             for auto in huidig_autos:
-                for richting in ["Links", "Rechts"] if auto.ligging == 'H' else ["Boven", "Onder"]:
-                    for stappen in range(1, speelveld.size):
-                        if nieuw_veld.is_vrij(auto, richting, stappen):
-                            nieuw_veld_copy = copy.deepcopy(nieuw_veld)
-                            autos_copy = copy.deepcopy(huidig_autos)
+                # Kijk naar richtingen auto afhankelijk van ligging
+                for richting in ["Links", "Rechts"] if auto.ligging == "H" else ["Boven", "Onder"]:
+                    # Bereken max aantal stappen van auto per richting
+                    maximale_stappen = nieuw_veld.max_stappen(auto, richting)
+                    # Door alle mogelijke stappen van auto
+                    for stappen in range(1, maximale_stappen + 1):
+                        # Maak list van de tuples in current state zodat we ze kunnen aanpassen
+                        nieuw_bord = list(huidig_bord)
+                        # Gaat door de list
+                        for i, (naam, positie) in enumerate(nieuw_bord):
+                            # Wanneer de naam gelijk is aan de auto naam
+                            if naam == auto.naam:
+                                # Update positie auto positie
+                                nieuw_bord[i] = (naam, nieuw_veld.move_position(positie, richting, stappen))
+                                # Uit for loop, andere auto's niet meer checken
+                                break
+                        # Maak van nieuw bord weer tuple
+                        nieuw_bord = tuple(sorted(nieuw_bord))
 
-                            auto_copy = next(a for a in autos_copy if a.naam == auto.naam)
-                            nieuw_veld_copy.beweeg_auto(auto_copy, richting, stappen)
-                            zetten += 1
+                        # Append deze nieuwe tuple
+                        stack.append((nieuw_bord, huidige_diepte + 1))
 
-                            new_state = tuple(sorted((a.naam, a.positie) for a in autos_copy))
-
-                            stack.append((nieuw_veld_copy, autos_copy, new_state, huidig_diepte + 1))
-
-    ren_tijd = time.time() - start_tijd
-    print("We moeten dieper graven.")
-    return -1, ren_tijd
+    runtime = time.time() - start_time
+    print("Geen uitgang gevonden op maximale diepte.")
+    return None, runtime
