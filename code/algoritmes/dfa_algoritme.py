@@ -44,7 +44,9 @@ def DFAAlgoritme(speelveld, autos):
             eind_tijd = time.time()
             print(f"Spel opgelost in {diepte} zetten!")
             print(f"Rentijd: {eind_tijd - start_tijd:.2f} seconden")
-            nieuw_veld.toon_bord()
+
+            # Update het speelveld grid naar de opgeloste staat
+            speelveld.grid = nieuw_veld.grid
             return diepte, eind_tijd - start_tijd
 
         '''
