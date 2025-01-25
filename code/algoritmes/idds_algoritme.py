@@ -42,11 +42,14 @@ def IDDSalgoritme(speelveld, autos, max_diepte=100):
             # Kijk of het opgelost is
             if nieuw_veld.opgelost():
                 print(f"Spel opgelost in {huidige_diepte} zetten!")
-                nieuw_veld.toon_bord()
                 print(f"Uitgang gevonden op diepte: {diepte_limiet}!")
                 runtime = time.time() - start_time
+
+                # Update het speelveld grid naar de opgeloste staat
+                speelveld.grid = nieuw_veld.grid
                 return huidige_diepte, runtime
             
+            # Controleer of de huidige staat al is bezocht op een kleinere diepte
             if huidig_bord in visited and visited[huidig_bord] <= huidige_diepte:
                 continue
 
@@ -80,6 +83,6 @@ def IDDSalgoritme(speelveld, autos, max_diepte=100):
                         # Append deze nieuwe tuple
                         stack.append((nieuw_bord, huidige_diepte + 1))
 
-    runtime = time.time() - start_time
+    rentijd = time.time() - start_time
     print("Geen uitgang gevonden op maximale diepte.")
-    return None, runtime
+    return None, rentijd
