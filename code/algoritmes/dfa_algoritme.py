@@ -2,13 +2,11 @@ import copy
 import time
 from ..helpers import *
 
-
 def DFAAlgoritme(speelveld, autos):
-     # Stack voor depth first
+    # Stack voor depth first
     stack = []
     # Al bezochte staten als set
     visited = set()
-    aantal_zetten = 0
     start_tijd = time.time()
 
     '''
@@ -32,16 +30,12 @@ def DFAAlgoritme(speelveld, autos):
 
         # Maak grid (nu alleen tuple) om te kijken of het opgelost is
         nieuw_veld = Grid(speelveld.size)
-        # List voor alle auto's, later nodig
-        huidig_autos = []
         # Loop over de tuple met naam en positie auto
         for naam, positie in huidig_bord:
             # Vind auto's door ze bij naam te matchen
             auto = next(auto for auto in autos if auto.naam == naam)
             # Krijg de positie van de auto
             auto.positie = positie
-            # Voeg auto toe aan lijst
-            huidig_autos.append(auto)
             # Voeg auto toe aan grid
             nieuw_veld.toevoeg_auto(auto)
 
@@ -50,16 +44,17 @@ def DFAAlgoritme(speelveld, autos):
             eind_tijd = time.time()
             print(f"Spel opgelost in {diepte} zetten!")
             print(f"Rentijd: {eind_tijd - start_tijd:.2f} seconden")
+
+            # Update het speelveld grid naar de opgeloste staat
             speelveld.grid = nieuw_veld.grid
-            speelveld.toon_bord() # laat het eindbord zien
             return diepte, eind_tijd - start_tijd
 
         '''
-        Deze functie laat alle auto's alle bewegeingen die zij kunnen maken maken.
+        Deze functie laat alle auto's alle bewegingen die zij kunnen maken maken.
         Per auto gaan we kijken hoe ze liggen, en kijken hoeveel stappen ze maximaal kunnen nemen.
         '''
         # Door alle auto's
-        for auto in huidig_autos:
+        for auto in autos:
             # Kijk naar richtingen auto afhankelijk van ligging
             for richting in ["Links", "Rechts"] if auto.ligging == "H" else ["Boven", "Onder"]:
                 # Bereken max aantal stappen van auto per richting
@@ -82,6 +77,6 @@ def DFAAlgoritme(speelveld, autos):
                     # Append deze nieuwe tuple
                     stack.append((nieuw_bord, diepte + 1))
 
-    # If the stack is empty and no solution was found
+    # Als de stack leeg is en geen oplossing gevonden is
     print("Geen oplossing gevonden.")
-    return aantal_zetten, time.time() - start_tijd
+    return -1, time.time() - start_tijd
