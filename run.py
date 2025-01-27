@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, url_for, jsonify
 from code.classes.grid import Grid
 from code.classes.auto import Auto
 from code.helpers import *
-#from code.randombord import generate_board
+from code.randombord import generate_board
 from code.algoritmes.random_oud import RandomAlgoritmeOud
 from code.algoritmes.random_new import RandomAlgoritmeNieuw
 from code.algoritmes.bfs_algoritme import BFSAlgoritme
@@ -11,7 +11,6 @@ from code.algoritmes.idds_algoritme import IDDSalgoritme
 from code.algoritmes.a_ster_algoritme import ASTERalgoritme
 import matplotlib.pyplot as plt
 import os
-import csv
 
 app = Flask(__name__)
 
@@ -21,9 +20,14 @@ autos = []
 game_results = []
 aantal_zetten = 0
 gekozen_spel = None
+original_speelveld = None
+original_autos = None
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    """
+    homepagina waar user bordspel kan kiezen
+    """
     global speelveld, autos, gekozen_spel
     mapnaam = 'gameboards'
     spellen = [f for f in os.listdir(mapnaam) if f.startswith("Rushhour") and f.endswith(".csv")]
@@ -85,6 +89,9 @@ def vraag_en_beweeg():
 
 @app.route('/plot', methods=['GET'])
 def plot():  
+    """
+    functie om resultaten van algoritmes te plotten
+    """
     global speelveld, autos, gekozen_spel
     # pad naar het spelbord bepalen
     mapnaam = 'gameboards'
@@ -148,21 +155,52 @@ def restart_game():
     """
     Reset het spel naar de beginsituatie.
     """
-    global speelveld, autos, gekozen_spel
+    global speelveld, autos, gekozen_spel, original_speelveld, original_autos
 
     try:
-        pad_naar_csv = os.path.join('gameboards', gekozen_spel)
-        size = int(gekozen_spel.split('x')[0].replace('Rushhour', ''))
-        autos = lees_csv_bestand(pad_naar_csv)
-        speelveld = Grid(size)
-        for auto in autos:
-            speelveld.toevoeg_auto(auto)
+        if gekozen_spel:
+            pad_naar_csv = os.path.join('gameboards', gekozen_spel)
+            size = int(gekozen_spel.split('x')[0].replace('Rushhour', ''))
+            autos = lees_csv_bestand(pad_naar_csv)
+            speelveld = Grid(size)
+            for auto in autos:
+                speelveld.toevoeg_auto(auto)
 
-        message = "Het spel is opnieuw gestart!"
+            message = "Het spel is opnieuw gestart!"
+
+        elif original_speelveld and original_autos:  # controleer of een random bord actief is
+            #gGenereer een nieuw random bord
+            size = original_speelveld.size  # gebruik dezelfde grootte als het vorige bord
+
+            speelveld, autos, grid = generate_board(size)
+            message = "Een nieuw random bord is gegenereerd!"
+        else:
+            # geen spel om te resetten
+            raise ValueError("Er is geen actief spel om opnieuw te starten. Kies of genereer eerst een bord.")
+
     except Exception as e:
         message = f"Fout bij opnieuw starten: {e}"
 
     return render_template('index.html', grid=speelveld.toon_bord(), autos=autos, message=message)
+
+@app.route('/generate_random', methods=['POST'])
+def generate_random():
+    """
+    random rush hour bordspel genereren
+    """
+    global speelveld, autos, gekozen_spel, original_autos, original_speelveld
+    size = int(request.form.get('size', 6))
+
+    # functie om randombord te genereren
+    speelveld, autos, grid = generate_board(size)
+
+    original_speelveld = Grid(size)  # maak een nieuwe kopie van het grid
+    for auto in autos:
+        original_speelveld.toevoeg_auto(auto)
+    original_autos = [Auto(a.positie[0], a.positie[1], a.lengte, a.naam, a.ligging) for a in autos]
+
+    return render_template('index.html', grid=grid, autos=autos, spellen=None, huidig_spel=None, message="Random bord gegenereerd!")
+
     
 @app.route('/start_algoritme', methods=['GET'])
 def start_algoritme():
